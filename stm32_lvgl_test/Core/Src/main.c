@@ -205,15 +205,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-//DMA2D传输完成中断，通知刷屏完成
-
-//void HAL_DMA2D_XferCpltCallback(DMA2D_HandleTypeDef *hdma2d){
-//	DMA2D->CR &= ~DMA2D_CR_TCIE;
-//	DMA2D->IFCR |= 1<<1;//清除传输完成标志
-//	__HAL_DMA2D_ENABLE_IT(hdma2d, DMA2D_CR_TCIE);
-//	
-//	lv_disp_flush_ready(&disp_drv);//通知LVGL刷屏完成
-//}
 
 /* USER CODE END 4 */
 

@@ -26,6 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "gpio.h"
+#include "lvgl.h"
+#include "lv_port_disp.h"
+#include "lv_demo_benchmark.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,12 +43,14 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+osMutexId_t lvgl_MutexHandle; //创建互斥锁
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+const osMutexAttr_t lvgl_Mutex_attributes = {
+  .name = "lvgl_Mutex"
+};
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -61,6 +66,13 @@ const osThreadAttr_t base_lvgl_task_attributes = {
   .stack_size = 2048 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal,
 };
+/* Definitions for lvgl_gui */
+osThreadId_t lvgl_guiHandle;
+const osThreadAttr_t lvgl_gui_attributes = {
+  .name = "lvgl_gui",
+  .stack_size = 2048 * 4,
+  .priority = (osPriority_t) osPriorityNormal1,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -69,6 +81,7 @@ const osThreadAttr_t base_lvgl_task_attributes = {
 
 void StartDefaultTask(void *argument);
 void lvgl_task(void *argument);
+void lvgl_gui1(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -99,6 +112,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
+  lvgl_MutexHandle = osMutexNew(&lvgl_Mutex_attributes);
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -119,6 +133,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of base_lvgl_task */
   base_lvgl_taskHandle = osThreadNew(lvgl_task, NULL, &base_lvgl_task_attributes);
+
+  /* creation of lvgl_gui */
+  lvgl_guiHandle = osThreadNew(lvgl_gui1, NULL, &lvgl_gui_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -144,7 +161,7 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    osDelay(1000);
+    osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -159,12 +176,39 @@ void StartDefaultTask(void *argument)
 void lvgl_task(void *argument)
 {
   /* USER CODE BEGIN lvgl_task */
+  lv_init();           // 初始化LVGL库
+  lv_port_disp_init(); // 初始化显示驱动
+  //lv_port_indev_init(); // 初始化输入设备
+  lv_demo_benchmark();
+  
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    osMutexAcquire(lvgl_MutexHandle, portMAX_DELAY);
+    lv_task_handler();
+    osMutexRelease(lvgl_MutexHandle);
+    vTaskDelay(5);
   }
   /* USER CODE END lvgl_task */
+}
+
+/* USER CODE BEGIN Header_lvgl_gui1 */
+/**
+* @brief Function implementing the lvgl_gui thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_lvgl_gui1 */
+void lvgl_gui1(void *argument)
+{
+  /* USER CODE BEGIN lvgl_gui1 */
+  /* Infinite loop */
+  for(;;)
+  {
+
+    vTaskDelay(5);
+  }
+  /* USER CODE END lvgl_gui1 */
 }
 
 /* Private application code --------------------------------------------------*/

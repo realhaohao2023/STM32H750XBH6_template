@@ -87,16 +87,16 @@ void lv_port_disp_init(void)
      */
 
     /* Example for 1) */
-    // static lv_disp_draw_buf_t draw_buf_dsc_1;
-    // static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                             /*A buffer for 10 rows*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10); /*Initialize the display buffer*/
+    static lv_disp_draw_buf_t draw_buf_dsc_1;
+    static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                             /*A buffer for 10 rows*/
+    lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10); /*Initialize the display buffer*/
 
     // 选择第一种方法，注释掉后面两种方法
      /* Example for 2) */
-     static lv_disp_draw_buf_t draw_buf_dsc_2;
-     static lv_color_t buf_2_1[MY_DISP_HOR_RES * 90];                        /*A buffer for 10 rows*/
-     static lv_color_t buf_2_2[MY_DISP_HOR_RES * 90];                        /*An other buffer for 10 rows*/
-     lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 90);   /*Initialize the display buffer*/
+    //  static lv_disp_draw_buf_t draw_buf_dsc_2;
+    //  static lv_color_t buf_2_1[MY_DISP_HOR_RES * 90];                        /*A buffer for 10 rows*/
+    //  static lv_color_t buf_2_2[MY_DISP_HOR_RES * 90];                        /*An other buffer for 10 rows*/
+    //  lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 90);   /*Initialize the display buffer*/
 
     // /* Example for 3) also set disp_drv.full_refresh = 1 below*/
     // static lv_disp_draw_buf_t draw_buf_dsc_3;
@@ -122,7 +122,7 @@ void lv_port_disp_init(void)
     disp_drv.flush_cb = disp_flush;
 
     /*Set a display buffer*/
-    disp_drv.draw_buf = &draw_buf_dsc_2;
+    disp_drv.draw_buf = &draw_buf_dsc_1;
 
     /*Required for Example 3)*/
     // disp_drv.full_refresh = 1;
@@ -188,7 +188,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
-    //lv_disp_flush_ready(disp_drv);
+    lv_disp_flush_ready(disp_drv);
 }
 
 /*OPTIONAL: GPU INTERFACE*/
