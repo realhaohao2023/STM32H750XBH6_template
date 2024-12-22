@@ -1621,3 +1621,31 @@ HAL_StatusTypeDef LCD_SPI_TransmitBuffer (SPI_HandleTypeDef *hspi, uint16_t *pDa
 //
 
 
+
+/*==============================================================================================================*/
+//以下两个函数用于lvgl的DMA2D显示驱动
+// DMA2D 传输函数
+void DMA2D_Transfer(uint32_t *pSrc, int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    DMA2D_HandleTypeDef hdma2d;
+
+    hdma2d.Instance = DMA2D;
+    hdma2d.Init.Mode = DMA2D_M2M;
+    hdma2d.Init.ColorMode = DMA2D_OUTPUT_RGB565;
+    hdma2d.Init.OutputOffset = 0;
+
+    hdma2d.LayerCfg[1].InputColorMode = DMA2D_INPUT_RGB565;
+    hdma2d.LayerCfg[1].InputOffset = 0;
+
+    HAL_DMA2D_Init(&hdma2d);
+    HAL_DMA2D_ConfigLayer(&hdma2d, 1);
+
+    HAL_DMA2D_Start(&hdma2d, (uint32_t)pSrc, (uint32_t)(LCD_FRAME_BUFFER + (y * LCD_Width + x) * sizeof(uint16_t)), width, height);
+}
+
+// 检查 DMA2D 传输是否完成
+bool DMA2D_Transfer_Complete(void)
+{
+    return (HAL_DMA2D_PollForTransfer(&hdma2d, 10) == HAL_OK);
+}
+

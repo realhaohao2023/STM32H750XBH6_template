@@ -13,8 +13,9 @@
 #include <stdbool.h>
 #include "lcd_spi_200.h"
 
-#define MY_DISP_HOR_RES 320 // 替换为实际屏幕宽度
-#define MY_DISP_VER_RES 240 // 替换为实际屏幕高度
+// 开发板适配的2寸lcd屏幕分辨率为240*320
+#define MY_DISP_HOR_RES 240 // 替换为实际屏幕宽度
+#define MY_DISP_VER_RES 320 // 替换为实际屏幕高度
 
 /*********************
  *      DEFINES
@@ -92,7 +93,7 @@ void lv_port_disp_init(void)
     lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10); /*Initialize the display buffer*/
 
     // 选择第一种方法，注释掉后面两种方法
-     /* Example for 2) */
+    /* Example for 2) */
     //  static lv_disp_draw_buf_t draw_buf_dsc_2;
     //  static lv_color_t buf_2_1[MY_DISP_HOR_RES * 90];                        /*A buffer for 10 rows*/
     //  static lv_color_t buf_2_2[MY_DISP_HOR_RES * 90];                        /*An other buffer for 10 rows*/
@@ -109,8 +110,8 @@ void lv_port_disp_init(void)
      * Register the display in LVGL
      *----------------------------------*/
 
-    //static lv_disp_drv_t disp_drv; /*Descriptor of a display driver*/
-    lv_disp_drv_init(&disp_drv);   /*Basic initialization*/
+    // static lv_disp_drv_t disp_drv; /*Descriptor of a display driver*/
+    lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
     /*Set up the functions to access to your display*/
 
@@ -170,7 +171,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     if (disp_flush_enabled)
     {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-
+#if 0
         int32_t x;
         int32_t y;
         for (y = area->y1; y <= area->y2; y++)
@@ -184,6 +185,17 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
                 color_p++;
             }
         }
+#else
+        // 使用 DMA2D 进行图像传输
+        DMA2D_Transfer((uint32_t *)color_p, area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);
+
+        // 等待 DMA2D 传输完成
+        while (DMA2D_Transfer_Complete() == false);
+
+        // 将图像数据通过 SPI 发送到 LCD
+        LCD_WriteBuff((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1));
+
+#endif
     }
 
     /*IMPORTANT!!!

@@ -78,8 +78,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	SCB_EnableICache();		// Ê¹ÄÜICache
-	SCB_EnableDCache();		// Ê¹ÄÜDCache
+	SCB_EnableICache();		// ä½¿èƒ½ICache
+	SCB_EnableDCache();		// ä½¿èƒ½DCache
 	
   /* USER CODE END 1 */
 
@@ -104,8 +104,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_QUADSPI_Init();
   /* USER CODE BEGIN 2 */
-	LED_Init();					// ³õÊ¼»¯LEDÒý½Å
-	QSPI_W25Qxx_Init();	   // ³õÊ¼»¯W25Q64	
+	LED_Init();					// åˆå§‹åŒ–LEDå¼•è„š
+	QSPI_W25Qxx_Init();	   // åˆå§‹åŒ–W25Q64	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,21 +113,21 @@ int main(void)
   
 	printf("\r\n***************************************\r\n");
 	
-	QSPI_W25Qxx_MemoryMappedMode(); 	 // ÅäÖÃQSPIÎªÄÚ´æÓ³ÉäÄ£Ê½
+	QSPI_W25Qxx_MemoryMappedMode(); 	 // é…ç½®QSPIä¸ºå†…å­˜æ˜ å°„æ¨¡å¼
 	
-	SCB_DisableICache();		// ¹Ø±ÕICache
-	SCB_DisableDCache();		// ¹Ø±ÕDcache
+	SCB_DisableICache();		// å…³é—­ICache
+	SCB_DisableDCache();		// å…³é—­Dcache
 
 	
-	SysTick->CTRL = 0;		// ¹Ø±ÕSysTick
-	SysTick->LOAD = 0;		// ÇåÁãÖØÔØÖµ
-	SysTick->VAL = 0;			// ÇåÁã¼ÆÊýÖµ
+	SysTick->CTRL = 0;		// å…³é—­SysTick
+	SysTick->LOAD = 0;		// æ¸…é›¶é‡è½½å€¼
+	SysTick->VAL = 0;			// æ¸…é›¶è®¡æ•°å€¼
 
-	JumpToApplication = (pFunction) (*(__IO uint32_t*) (W25Qxx_Mem_Addr + 4));	// ÉèÖÃÆðÊ¼µØÖ·
-	__set_MSP(*(__IO uint32_t*) W25Qxx_Mem_Addr);	// ÉèÖÃÖ÷¶ÑÕ»Ö¸Õë
-	printf("Ìø×ªµ½W25Q256ÔËÐÐÓÃ»§³ÌÐò>>>\r\n\r\n");
+	JumpToApplication = (pFunction) (*(__IO uint32_t*) (W25Qxx_Mem_Addr + 4));	// è®¾ç½®èµ·å§‹åœ°å€
+	__set_MSP(*(__IO uint32_t*) W25Qxx_Mem_Addr);	// è®¾ç½®ä¸»å †æ ˆæŒ‡é’ˆ
+	printf("è·³è½¬åˆ°W25Q256è¿è¡Œç”¨æˆ·ç¨‹åº>>>\r\n\r\n");
 
-	JumpToApplication();			// Ö´ÐÐÌø×ª
+	JumpToApplication();			// æ‰§è¡Œè·³è½¬
 	
   while (1)
   {

@@ -19,10 +19,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "dma2d.h"
 #include "memorymap.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
+#include "fmc.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -30,6 +32,7 @@
 #include "lvgl.h"
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
+#include "sdram.h"
 
 /* USER CODE END Includes */
 
@@ -102,6 +105,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_SPI6_Init();
+  MX_DMA2D_Init();
+  MX_FMC_Init();
   /* USER CODE BEGIN 2 */
 
   
@@ -110,6 +115,7 @@ int main(void)
   //lv_init();           // 初始化LVGL库
   //lv_port_disp_init(); // 初始化显示驱动
   //lv_port_indev_init(); // 初始化输入设备
+  SDRAM_Initialization_Sequence(&hsdram1); // SDRAM初始化
 
   
 

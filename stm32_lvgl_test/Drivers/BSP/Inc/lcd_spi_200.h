@@ -7,7 +7,8 @@
 #include "lcd_fonts.h"	// 图片和字库文件不是必须，用户可自行删减
 #include "lcd_image.h"
 #include "main.h"
-
+#include "dma2d.h"
+#include "lv_port_disp.h"
 /*----------------------------------------------- 参数宏 -------------------------------------------*/
 
 #define LCD_Width     240		// LCD的像素长度

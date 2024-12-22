@@ -37,6 +37,12 @@
                     "path": "../Core/Src/freertos.c"
                   },
                   {
+                    "path": "../Core/Src/dma2d.c"
+                  },
+                  {
+                    "path": "../Core/Src/fmc.c"
+                  },
+                  {
                     "path": "../Core/Src/memorymap.c"
                   },
                   {
@@ -80,6 +86,9 @@
                   },
                   {
                     "path": "../Drivers/BSP/Src/lcd_spi_200.c"
+                  },
+                  {
+                    "path": "../Drivers/BSP/Src/sdram.c"
                   }
                 ],
                 "folders": []
@@ -91,6 +100,9 @@
             "files": [
               {
                 "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c"
+              },
+              {
+                "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma2d.c"
               },
               {
                 "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c"
@@ -136,6 +148,12 @@
               },
               {
                 "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c"
+              },
+              {
+                "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_fmc.c"
+              },
+              {
+                "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_sdram.c"
               },
               {
                 "path": "../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi.c"

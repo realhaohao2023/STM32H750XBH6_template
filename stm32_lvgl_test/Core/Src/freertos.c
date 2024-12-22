@@ -28,6 +28,7 @@
 #include "gpio.h"
 #include "lvgl.h"
 #include "lv_port_disp.h"
+#include "sdram.h"
 #include "lv_demo_benchmark.h"
 /* USER CODE END Includes */
 
@@ -157,11 +158,12 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
+  //SDRAM_Test();
   /* Infinite loop */
   for(;;)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    osDelay(100);
+    vTaskDelay(100);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -179,14 +181,16 @@ void lvgl_task(void *argument)
   lv_init();           // 初始化LVGL库
   lv_port_disp_init(); // 初始化显示驱动
   //lv_port_indev_init(); // 初始化输入设备
-  lv_demo_benchmark();
+  lv_demo_benchmark(); // 运行benchmark演示
   
   /* Infinite loop */
   for(;;)
   {
+    //在互斥锁内执行LVGL任务
     osMutexAcquire(lvgl_MutexHandle, portMAX_DELAY);
     lv_task_handler();
     osMutexRelease(lvgl_MutexHandle);
+
     vTaskDelay(5);
   }
   /* USER CODE END lvgl_task */
