@@ -30,6 +30,8 @@
 #include "lv_port_disp.h"
 #include "sdram.h"
 #include "lv_demo_benchmark.h"
+#include "lv_demo_widgets.h"
+#include "lv_demo_stress.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -164,7 +166,7 @@ void StartDefaultTask(void *argument)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     //printf("Hello World!\r\n");
-    vTaskDelay(100);
+    vTaskDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -179,11 +181,20 @@ void StartDefaultTask(void *argument)
 void lvgl_task(void *argument)
 {
   /* USER CODE BEGIN lvgl_task */
-  uint32_t time;
+  //uint32_t time;
   lv_init();           // 初始化LVGL库
   lv_port_disp_init(); // 初始化显示驱动
   lv_port_indev_init(); // 初始化输入设备
-  lv_demo_benchmark(); // 运行benchmark演示
+  //lv_demo_benchmark(); // 运行benchmark演示
+  lv_demo_widgets(); // 运行widgets演示
+  //lv_demo_stress(); // 运行stress演示
+
+  // //测试代码
+  // lv_obj_t *switch_obj = lv_switch_create(lv_scr_act());
+  // lv_obj_set_size(switch_obj, 120, 60);
+  // lv_obj_align(switch_obj, LV_ALIGN_CENTER, 0, 0);
+
+  
   
   /* Infinite loop */
   for(;;)

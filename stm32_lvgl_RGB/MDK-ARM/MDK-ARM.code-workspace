@@ -4,10 +4,6 @@
             "path": "."
         }
     ],
-    "settings": {
-        "files.associations": {
-            "lcd_rgb.h": "c"
-        }
-    },
+    "settings": {},
     "extensions": {}
 }

@@ -49,7 +49,7 @@ void lv_port_disp_init(void)
     /*-------------------------
      * Initialize your display
      * -----------------------*/
-    disp_init();
+    disp_init(); // 可以在这个函数里放置LCD初始化代码
 
     /*-----------------------------
      * Create a buffer for drawing
@@ -76,20 +76,24 @@ void lv_port_disp_init(void)
      *      and you only need to change the frame buffer's address.
      */
 
+// 官方提供的三种缓冲区配置方法
 #if 1 // 这部分是lgvl port的示例代码
-      /* Example for 1) */
-      // static lv_disp_draw_buf_t draw_buf_dsc_1;
-      // static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                             /*A buffer for 10 rows*/
-      // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10); /*Initialize the display buffer*/
 
-    // 选择第一种方法，注释掉后面两种方法
+    // 单个缓冲区。一次刷新10行(水平分辨率*10)
+    /* Example for 1) */
+    // static lv_disp_draw_buf_t draw_buf_dsc_1;
+    // static lv_color_t buf_1[800 * 60];                             /*A buffer for 10 rows*/
+    // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, 800 * 60); /*Initialize the display buffer*/
+
+    // 双缓冲区，一次刷新90行
     /* Example for 2) */
     //  static lv_disp_draw_buf_t draw_buf_dsc_1;
     //  static lv_color_t buf_2_1[MY_DISP_HOR_RES * 90];                        /*A buffer for 10 rows*/
     //  static lv_color_t buf_2_2[MY_DISP_HOR_RES * 90];                        /*An other buffer for 10 rows*/
     //  lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 90);   /*Initialize the display buffer*/
 
-    // /* Example for 3) also set disp_drv.full_refresh = 1 below*/
+    // 双缓冲区，一次刷新整个屏幕 buf_3_1 和 buf_3_2 是两个屏幕大小的缓冲区
+    //  /* Example for 3) also set disp_drv.full_refresh = 1 below*/
     static lv_disp_draw_buf_t draw_buf_dsc_3;
     static lv_color_t *buf_3_1 = (lv_color_t *)(LVGL_MemoryAdd); /*A screen sized buffer*/
     static lv_color_t *buf_3_2 = (lv_color_t *)(LVGL_MemoryAdd + LCD_Width * LCD_Height * BytesPerPixel_0);
@@ -137,7 +141,7 @@ void lv_port_disp_init(void)
      *----------------------------------*/
 
     static lv_disp_drv_t disp_drv; /*Descriptor of a display driver*/
-    lv_disp_drv_init(&disp_drv); /*Basic initialization*/
+    lv_disp_drv_init(&disp_drv);   /*Basic initialization*/
 
     /*Set up the functions to access to your display*/
 
@@ -171,6 +175,8 @@ void lv_port_disp_init(void)
 static void disp_init(void)
 {
     /*You code here*/
+    LCD_RGB_Init(); // LCD初始化
+    Touch_Init();   // 触摸屏初始化
 }
 
 volatile bool disp_flush_enabled = true;
@@ -189,22 +195,20 @@ void disp_disable_update(void)
     disp_flush_enabled = false;
 }
 
-//LTDC中断回调函数
+// LTDC中断回调函数
 /**
-  * @brief  Line Event callback.
-  * @param  hltdc: pointer to a LTDC_HandleTypeDef structure that contains
-  *                the configuration information for the specified LTDC.
-  * @retval None
-  */
+ * @brief  Line Event callback.
+ * @param  hltdc: pointer to a LTDC_HandleTypeDef structure that contains
+ *                the configuration information for the specified LTDC.
+ * @retval None
+ */
 void HAL_LTDC_LineEvenCallback(LTDC_HandleTypeDef *hltdc)
-{   
-	// 重新载入参数，新显存地址生效，此时显示才会更新
-	// 每次进入中断才会更新显示，这样能有效避免撕裂现象	
-	__HAL_LTDC_RELOAD_CONFIG(hltdc);						
-	HAL_LTDC_ProgramLineEvent(hltdc, 0);
-    
+{
+    // 重新载入参数，新显存地址生效，此时显示才会更新
+    // 每次进入中断才会更新显示，这样能有效避免撕裂现象
+    __HAL_LTDC_RELOAD_CONFIG(hltdc);
+    HAL_LTDC_ProgramLineEvent(hltdc, 0);
 }
-
 
 /*Flush the content of the internal buffer the specific area on the display
  *You can use DMA or any hardware acceleration to do this operation in the background but
@@ -215,7 +219,7 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
 #if 1
-       LTDC_Layer1->CFBAR = (uint32_t )color_p;			// 切换显存地址
+        LTDC_Layer1->CFBAR = (uint32_t)color_p; // 切换显存地址
 #else
         // 使用 DMA2D 进行图像传输
         DMA2D_Transfer((uint32_t *)color_p, area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);

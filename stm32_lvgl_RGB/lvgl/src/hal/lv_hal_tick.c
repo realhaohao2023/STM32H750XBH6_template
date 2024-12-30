@@ -49,7 +49,7 @@
 void LV_ATTRIBUTE_TICK_INC lv_tick_inc(uint32_t tick_period)
 {
     tick_irq_flag = 0;
-    sys_time += tick_period;
+    sys_time += tick_period; //心跳时钟累积到系统时间
 }
 #endif
 

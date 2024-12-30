@@ -231,6 +231,21 @@
           },
           {
             "path": "../lvgl/demos/benchmark/assets/lv_font_bechmark_montserrat_28_compr_az.c.c"
+          },
+          {
+            "path": "../lvgl/demos/stress/lv_demo_stress.c"
+          },
+          {
+            "path": "../lvgl/demos/widgets/assets/img_clothes.c"
+          },
+          {
+            "path": "../lvgl/demos/widgets/assets/img_demo_widgets_avatar.c"
+          },
+          {
+            "path": "../lvgl/demos/widgets/assets/img_lvgl_logo.c"
+          },
+          {
+            "path": "../lvgl/demos/widgets/lv_demo_widgets.c"
           }
         ],
         "folders": []
