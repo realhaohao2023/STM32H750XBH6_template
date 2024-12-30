@@ -39,6 +39,7 @@ extern "C" {
 #include "lcd_fonts.h"
 #include "lcd_image.h"
 #include "lcd_test.h"
+#include "touch_800x480.h"
 
 /* USER CODE END Includes */
 

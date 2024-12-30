@@ -125,7 +125,9 @@ int main(void)
   //lv_port_disp_init(); // 初始化显示驱动
   //lv_port_indev_init(); // 初始化输入设备
   SDRAM_Initialization_Sequence(&hsdram1); // SDRAM初始化
-  //LCD_RGB_Init(); // LCD初始化
+  LCD_RGB_Init(); // LCD初始化
+  Touch_Init(); // 触摸屏初始化
+  SDRAM_Test();
   
 
   

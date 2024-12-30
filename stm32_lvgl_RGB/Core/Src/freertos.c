@@ -158,7 +158,7 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
-  SDRAM_Test();
+
   /* Infinite loop */
   for(;;)
   {
@@ -179,22 +179,23 @@ void StartDefaultTask(void *argument)
 void lvgl_task(void *argument)
 {
   /* USER CODE BEGIN lvgl_task */
-  //lv_init();           // 初始化LVGL库
-  //lv_port_disp_init(); // 初始化显示驱动
-  //lv_port_indev_init(); // 初始化输入设备
-  //lv_demo_benchmark(); // 运行benchmark演示
+  uint32_t time;
+  lv_init();           // 初始化LVGL库
+  lv_port_disp_init(); // 初始化显示驱动
+  lv_port_indev_init(); // 初始化输入设备
+  lv_demo_benchmark(); // 运行benchmark演示
   
   /* Infinite loop */
   for(;;)
   {
     //在互斥锁内执行LVGL任务
     osMutexAcquire(lvgl_MutexHandle, portMAX_DELAY);
-    //lv_task_handler();
+    lv_task_handler();
     osMutexRelease(lvgl_MutexHandle);
 
-    
-
-    vTaskDelay(5);
+    Touch_Scan(); //扫描触摸屏
+    // 延时不能小于 LV_DISP_DEF_REFR_PERIOD，否则会闪烁，另外触摸扫描的延时也不能太低
+    osDelay(LV_DISP_DEF_REFR_PERIOD);
   }
   /* USER CODE END lvgl_task */
 }
