@@ -120,7 +120,7 @@ int main(void)
 
   
 
-  //SPI_LCD_Init();      // 液晶屏初始化
+  
   //lv_init();           // 初始化LVGL库
   //lv_port_disp_init(); // 初始化显示驱动
   //lv_port_indev_init(); // 初始化输入设备

@@ -40,6 +40,7 @@ extern "C" {
 #include "lcd_image.h"
 #include "lcd_test.h"
 #include "touch_800x480.h"
+#include "my_lvgl_demo.h"
 
 /* USER CODE END Includes */
 

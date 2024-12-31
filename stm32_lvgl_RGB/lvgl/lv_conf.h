@@ -49,10 +49,10 @@
 #define LV_MEM_CUSTOM 0
 #if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
-    #define LV_MEM_SIZE (48U * 1024U)          /*[bytes]*/
+    #define LV_MEM_SIZE (2048U * 1024U)          /*[bytes]*/
 
     /*Set an address for the memory pool instead of allocating it as a normal array. Can be in external SRAM too.*/
-    #define LV_MEM_ADR 0     /*0: unused*/
+    #define LV_MEM_ADR  (0xC0000000+0x400000)    /*0: unused*/ //将内存池放在SDRAM中,不推荐这样做，因为SDRAM的读写速度比较慢，会影响LVGL的运行速度  不能和LTDC显存、LVGL的层缓存冲突
     /*Instead of an address give a memory allocator that will be called to get a memory pool for LVGL. E.g. my_malloc*/
     #if LV_MEM_ADR == 0
         #undef LV_MEM_POOL_INCLUDE
@@ -78,10 +78,10 @@
  *====================*/
 
 /*Default display refresh period. LVG will redraw changed areas with this period time*/
-#define LV_DISP_DEF_REFR_PERIOD 30      /*[ms]*/
+#define LV_DISP_DEF_REFR_PERIOD 16      /*[ms]*/
 
 /*Input device read period in milliseconds 输入设备扫描周期，设置得越短，输入设备响应越快*/
-#define LV_INDEV_DEF_READ_PERIOD 30     /*[ms]*/
+#define LV_INDEV_DEF_READ_PERIOD 16     /*[ms]*/
 
 /*Use a custom tick source that tells the elapsed time in milliseconds.
  *It removes the need to manually update the tick with `lv_tick_inc()`)*/
@@ -178,7 +178,8 @@
 
 /*Use Arm's 2D acceleration library Arm-2D */
 #define LV_USE_GPU_ARM2D 0
-
+ 
+//开启stm32上的GPU(DMA2D)加速
 /*Use STM32's DMA2D (aka Chrom Art) GPU*/
 #define LV_USE_GPU_STM32_DMA2D 1
 #if LV_USE_GPU_STM32_DMA2D

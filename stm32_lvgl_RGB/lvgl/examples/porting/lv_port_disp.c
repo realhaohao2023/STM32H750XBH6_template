@@ -13,11 +13,15 @@
 #include <stdbool.h>
 #include "lcd_rgb.h"
 #include "sdram.h"
+#include "main.h"
 
 /*********************
  *      DEFINES
  *********************/
-#define LVGL_MemoryAdd (LCD_MemoryAdd + LCD_Width * LCD_Height * BytesPerPixel_0) // 显示缓冲区地址
+
+/*将绘图缓冲区放在sdram中*/
+#define LVGL_MemoryAdd (LCD_MemoryAdd + LCD_Width * LCD_Height * BytesPerPixel_0) // LVGL显存地址，在sdram中开辟显存空间
+/*BytesPerPixel_0 对应不同色彩位数所占用的位数*/
 
 /**********************
  *      TYPEDEFS
@@ -35,7 +39,9 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 /**********************
  *  STATIC VARIABLES
  **********************/
-
+// static lv_color_t buf_1[800 * 480] __attribute__((at(0XC0000000 + 800 * 480 * BytesPerPixel_0)));     // 一块屏幕大小的缓冲区
+// static lv_color_t buf_2[800 * 480] __attribute__((at(0XC0000000 + 800 * 480 * BytesPerPixel_0 * 2))); // 一块屏幕大小的缓冲区，在buf_1的后面
+/*__attribute__指定数组在内存中的具体位置，这里将缓冲区开辟到sdram的指定地址中*/
 /**********************
  *      MACROS
  **********************/
@@ -76,13 +82,13 @@ void lv_port_disp_init(void)
      *      and you only need to change the frame buffer's address.
      */
 
-// 官方提供的三种缓冲区配置方法
-#if 1 // 这部分是lgvl port的示例代码
+    // 官方提供的三种缓冲区配置方法
+    // 这部分是lgvl port的示例代码
 
     // 单个缓冲区。一次刷新10行(水平分辨率*10)
     /* Example for 1) */
     // static lv_disp_draw_buf_t draw_buf_dsc_1;
-    // static lv_color_t buf_1[800 * 60];                             /*A buffer for 10 rows*/
+    // //static lv_color_t buf_1[800 * 60];                             /*A buffer for 10 rows*/
     // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, 800 * 60); /*Initialize the display buffer*/
 
     // 双缓冲区，一次刷新90行
@@ -92,49 +98,13 @@ void lv_port_disp_init(void)
     //  static lv_color_t buf_2_2[MY_DISP_HOR_RES * 90];                        /*An other buffer for 10 rows*/
     //  lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 90);   /*Initialize the display buffer*/
 
-    // 双缓冲区，一次刷新整个屏幕 buf_3_1 和 buf_3_2 是两个屏幕大小的缓冲区
-    //  /* Example for 3) also set disp_drv.full_refresh = 1 below*/
+    // 双缓冲区，一次刷新整个屏幕 buf_3_1 和 buf_3_2 是两个屏幕大小的缓冲区  在这里直接用了显存地址
+    /* Example for 3) also set disp_drv.full_refresh = 1 below*/
     static lv_disp_draw_buf_t draw_buf_dsc_3;
-    static lv_color_t *buf_3_1 = (lv_color_t *)(LVGL_MemoryAdd); /*A screen sized buffer*/
+    static lv_color_t *buf_3_1 = (lv_color_t *)(LVGL_MemoryAdd); /*A screen sized buffer*/ // 这里通过指针直接指向了显存地址
     static lv_color_t *buf_3_2 = (lv_color_t *)(LVGL_MemoryAdd + LCD_Width * LCD_Height * BytesPerPixel_0);
     lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2,
                           LCD_Width * LCD_Height); /*Initialize the display buffer*/
-#else                                              // 这部分是使用sdram的代码
-    // static lv_disp_draw_buf_t draw_buf_dsc_1;
-    // static lv_color_t buf_1[MY_DISP_HOR_RES * 400] __attribute__((at(0xC0000000 + 1024 * 600 * 2))); /*A buffer for 10 rows*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, 320 * 240);                                 // 这里要改成屏幕大小  /*Initialize the display buffer*/
-
-    // /* Example for 2) */
-    // static lv_disp_draw_buf_t draw_buf_dsc_2;
-    // static lv_color_t buf_2_1[MY_DISP_HOR_RES * 400] __attribute__((at(0xC0000000 + 1024 * 600 * 2))); /*A buffer for 10 rows*/
-    // static lv_color_t buf_2_2[MY_DISP_HOR_RES * 400] __attribute__((at(0xC0000000 + 1024 * 600 * 4))); // 因为上一个数组已经占了                         /*An other buffer for 10 rows*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, 320 * 240);                              // 这里要改成屏幕大小  /*Initialize the display buffer*/
-
-    // /* Example for 3) also set disp_drv.full_refresh = 1 below*/
-    // static lv_disp_draw_buf_t draw_buf_dsc_3;
-    // static lv_color_t buf_3_1[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000 + 1024 * 600 * 2))); /*A screen sized buffer*/
-    // static lv_color_t buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000 + 1024 * 600 * 4))); /*Another screen sized buffer*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2,
-    //                       320 * 240); // 这里要改成屏幕大小、
-
-    // /* Example for 1) */
-    // static lv_disp_draw_buf_t draw_buf_dsc_1;
-    // static lv_color_t buf_1[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000))); /*A buffer for the entire screen*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * MY_DISP_VER_RES);     /*Initialize the display buffer*/
-
-    /* Example for 2) */
-    static lv_disp_draw_buf_t draw_buf_dsc_2;
-    static lv_color_t buf_2_1[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000 + MY_DISP_HOR_RES * MY_DISP_VER_RES * sizeof(lv_color_t))));     /*A buffer for the entire screen*/
-    static lv_color_t buf_2_2[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000 + 2 * MY_DISP_HOR_RES * MY_DISP_VER_RES * sizeof(lv_color_t)))); /*Another buffer for the entire screen*/
-    lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * MY_DISP_VER_RES);                                                               /*Initialize the display buffer*/
-
-    /* Example for 3) also set disp_drv.full_refresh = 1 below*/
-    // static lv_disp_draw_buf_t draw_buf_dsc_3;
-    // static lv_color_t buf_3_1[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000)));                                                          /*A screen sized buffer*/
-    // static lv_color_t buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES] __attribute__((at(0xC0000000 + MY_DISP_HOR_RES * MY_DISP_VER_RES * sizeof(lv_color_t)))); /*Another screen sized buffer*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2, MY_DISP_HOR_RES * MY_DISP_VER_RES);                                                           /*Initialize the display buffer*/
-
-#endif
 
     /*-----------------------------------
      * Register the display in LVGL
@@ -218,20 +188,9 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
     if (disp_flush_enabled)
     {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-#if 1
+
+        /*直接将颜色填充到ltdc显存中*/
         LTDC_Layer1->CFBAR = (uint32_t)color_p; // 切换显存地址
-#else
-        // 使用 DMA2D 进行图像传输
-        DMA2D_Transfer((uint32_t *)color_p, area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);
-
-        // 等待 DMA2D 传输完成
-        while (DMA2D_Transfer_Complete() == false)
-            ;
-
-        // 将图像数据通过 SPI 发送到 LCD
-        LCD_WriteBuff((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1));
-
-#endif
     }
 
     /*IMPORTANT!!!
